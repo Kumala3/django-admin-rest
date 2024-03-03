@@ -25,12 +25,14 @@ services:
 
   django-app:
     container_name: django-app
+    image: django-app
     ports:
       - "7000:7000"
     build:
       context: ./web-app
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:7000
+    restart: always
     links:
       - "pg_database"
     logging:

@@ -29,7 +29,7 @@ services:
     ports:
       - "7000:7000"
     build:
-      context: ./web-app
+      context: ./web
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:7000
     restart: always

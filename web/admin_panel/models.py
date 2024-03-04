@@ -6,6 +6,7 @@ from rest_api.models import Tire, TelegramUser
 class CartItem(models.Model):
     """Элемент корзины"""
 
+    cart_id = models.BigAutoField(verbose_name="ID товара", primary_key=True)
     user = models.ForeignKey(
         TelegramUser, on_delete=models.CASCADE, verbose_name="Пользователь"
     )

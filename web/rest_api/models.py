@@ -62,6 +62,7 @@ class Height(models.Model):
 class Tire(models.Model):
     SEASONS = [("W", "Зима"), ("S", "Лето"), ("A", "Всесезонные")]
 
+    tire_id = models.BigAutoField(verbose_name="ID шины", primary_key=True)
     brand = models.CharField(max_length=100, verbose_name="Бренд, модель")
     description = models.TextField(verbose_name="Описание", blank=True, null=True)
     diameter = models.ForeignKey(

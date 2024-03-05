@@ -49,10 +49,19 @@ class CartSerializer(serializers.ModelSerializer):
         return CartItem.objects.create(**validated_data)
 
 
+class CartIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ["cart_id"]
+
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = "__all__"
+
+    def create(self, validated_data):
+        return Order.objects.create(**validated_data)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

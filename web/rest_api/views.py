@@ -8,6 +8,15 @@ from admin_panel.models import CartItem
 from .serializers import UserSerializer, TireSerializer, CartSerializer, OrderSerializer
 
 
+def get_user_by_id(user_id: int) -> TelegramUser:
+    """Fetch a TelegramUser by their user_id.
+
+    Returns the TelegramUser instance if found.
+    Raises TelegramUser.DoesNotExist if the user is not found.
+    """
+    return TelegramUser.objects.get(user_id=user_id)
+
+
 class UserHandleApiView(APIView):
     """
     API view for handling user operations.
@@ -37,19 +46,27 @@ class UserHandleApiView(APIView):
 
     def get(self, request: Request):
         user_id = request.data.get("user_id")
+
         if not user_id:
             return Response("user_id is required", status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = TelegramUser.objects.get(user_id=user_id)
-            serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": f"There was an error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        try:
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": e.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TireApiView(APIView):
@@ -63,6 +80,7 @@ class TireApiView(APIView):
 
     def get(self, request: Request):
         tier_id = request.data.get("tier_id")
+
         if not tier_id:
             return Response("tier_id is required", status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,14 +118,16 @@ class CartApiView(APIView):
             )
 
         try:
-            user = TelegramUser.objects.get(user_id=user_id)
+            user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "user wasn't found"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": f"There was error: {e}"})
+            return Response(
+                {"error": f"There was an error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         try:
             tire = Tire.objects.get(tire_id=tire_id)
@@ -141,6 +161,7 @@ class CartApiView(APIView):
 
     def get(self, request: Request):
         cart_id = request.data.get("cart_id")
+
         if not cart_id:
             return Response("cart_id is required", status=status.HTTP_400_BAD_REQUEST)
 
@@ -165,16 +186,15 @@ class CartItemsView(APIView):
 
         if not user_id:
             return Response("user_id is required", status=status.HTTP_400_BAD_REQUEST)
-
+        
         try:
-            user = TelegramUser.objects.get(id=user_id)
+            user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "user wasn't found"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": f"There was error: {e}"})
+            return Response({"error": f"There was an error: {e.message}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             cart_items = CartItem.objects.filter(user=user)
@@ -182,8 +202,42 @@ class CartItemsView(APIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": f"There was error: {e}"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"error": f"There was error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def delete(self, request: Request):
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            return Response("user_id is required", status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = get_user_by_id(user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"There was an error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        try:
+            cart_items = CartItem.objects.filter(user=user)
+            cart_items.delete()
+            return Response(
+                {"status": "cart_items was successfully deleted"},
+                status=status.HTTP_200_OK,
+            )
+        except CartItem.DoesNotExist:
+            return Response(
+                {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderView(APIView):
     def get(self, request: Request):
@@ -200,14 +254,16 @@ class OrderView(APIView):
             )
 
         try:
-            user = TelegramUser.objects.get(user_id=user_id)
+            user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "user wasn't found"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": f"There was error: {e}"})
+            return Response(
+                {"error": f"There was an error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         try:
             cart = CartItem.objects.get(cart_id=cart_id)

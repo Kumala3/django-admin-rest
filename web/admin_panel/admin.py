@@ -26,4 +26,4 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ("order", "tire", "quantity")
     list_filter = ("order", "tire")
-    search_fields = ('order__id', 'tire__brand')
+    search_fields = ("order__id", "tire__brand")

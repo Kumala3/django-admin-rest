@@ -5,7 +5,7 @@ from rest_framework import status
 
 from .models import TelegramUser, Tire
 from admin_panel.models import CartItem
-from .serializers import UserSerializer, TireSerializer, CartSerializer
+from .serializers import UserSerializer, TireSerializer, CartSerializer, OrderSerializer
 
 
 class UserHandleApiView(APIView):
@@ -108,7 +108,7 @@ class CartApiView(APIView):
             )
         except Exception as e:
             return Response({"error": f"There was error: {e}"})
-        
+
         try:
             tire = Tire.objects.get(tire_id=tire_id)
         except Tire.DoesNotExist:
@@ -118,7 +118,7 @@ class CartApiView(APIView):
             )
         except Exception as e:
             return Response({"error": f"There was error: {e}"})
-        
+
         data = {
             "user": user.pk,
             "tire": tire.pk,
@@ -129,7 +129,10 @@ class CartApiView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"status": "cart_item was successfully added"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"status": "cart_item was successfully added"},
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(
             {"status": "Cart Item wasn't added to the basket"},
@@ -156,12 +159,65 @@ class CartApiView(APIView):
         pass
 
 
+class CartItemsView(APIView):
+    def get(self, request: Request):
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            return Response("user_id is required", status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = TelegramUser.objects.get(id=user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {"error": "user wasn't found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return Response({"error": f"There was error: {e}"})
+
+        try:
+            cart_items = CartItem.objects.filter(user=user)
+            serializer = CartSerializer(cart_items, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"There was error: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
 class OrderView(APIView):
     def get(self, request: Request):
         pass
 
     def post(self, request: Request):
-        pass
+        user_id = request.data.get("user_id")
+        cart_id = request.data.get("cart_ids")
+
+        if not user_id or not cart_id:
+            return Response(
+                {"error": "user_id and cart_ids are required parameters"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = TelegramUser.objects.get(user_id=user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {"error": "user wasn't found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return Response({"error": f"There was error: {e}"})
+
+        try:
+            cart = CartItem.objects.get(cart_id=cart_id)
+        except CartItem.DoesNotExist:
+            return Response(
+                {"error": "cart wasn't found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return Response({"error": f"There was error: {e}"})
 
     def delete(self, request: Request):
         pass

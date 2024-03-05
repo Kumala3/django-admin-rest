@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Элемент корзины",
                 "verbose_name_plural": "Элементы корзины",
-                "db_table": "basket_items",
+                "db_table": "shop_cart_items",
                 "unique_together": {("user", "tire")},
             },
         ),
@@ -88,9 +88,9 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Элемент заказа",
-                "verbose_name_plural": "Элементы заказа",
-                "db_table": "orders_elements",
+                "verbose_name": "Заказ",
+                "verbose_name_plural": "Заказы",
+                "db_table": "orders",
             },
         ),
         migrations.CreateModel(
@@ -125,9 +125,9 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Заказ",
-                "verbose_name_plural": "Заказы",
-                "db_table": "orders",
+                "verbose_name": "Элемент заказа",
+                "verbose_name_plural": "Элементы заказа",
+                "db_table": "orders_elements",
             },
         ),
         migrations.DeleteModel(

@@ -62,11 +62,11 @@ class UserHandleApiView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -75,7 +75,8 @@ class UserHandleApiView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"error": e.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"Error": f"There was an error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -100,10 +101,13 @@ class TireApiView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Tire.DoesNotExist:
             return Response(
-                {"error": "Tire not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "Tire not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"Error": f"There was an error: {e.message}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class CartApiView(APIView):
@@ -123,7 +127,7 @@ class CartApiView(APIView):
 
         if not user_id or not tire_id:
             return Response(
-                {"error": "user_id and tire_id are required parameters"},
+                {"Error": "user_id and tire_id are required parameters"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -131,11 +135,11 @@ class CartApiView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -143,11 +147,11 @@ class CartApiView(APIView):
             tire = Tire.objects.get(tire_id=tire_id)
         except Tire.DoesNotExist:
             return Response(
-                {"error": "tire wasn't found"},
+                {"Error": "tire wasn't found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception as e:
-            return Response({"error": f"There was error: {e}"})
+            return Response({"Error": f"There was an error: {e.message}"})
 
         data = {
             "user": user.pk,
@@ -181,10 +185,13 @@ class CartApiView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CartItem.DoesNotExist:
             return Response(
-                {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"Error": f"There was an error: {e.message}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def delete(self, request: Request):
         pass
@@ -209,11 +216,11 @@ class CartItemsView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -223,7 +230,7 @@ class CartItemsView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"error": f"There was error: {e}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -237,11 +244,11 @@ class CartItemsView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -254,10 +261,13 @@ class CartItemsView(APIView):
             )
         except CartItem.DoesNotExist:
             return Response(
-                {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"Error": f"There was an error: {e.message}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class OrderView(APIView):
@@ -275,7 +285,7 @@ class OrderView(APIView):
 
         if not user_id:
             return Response(
-                {"error": "user_id and cart_ids are required parameters"},
+                {"Error": "user_id and cart_ids are required parameters"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -283,11 +293,11 @@ class OrderView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -300,11 +310,11 @@ class OrderView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
             return Response(
-                {"error": "order doesn't exist"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "order doesn't exist"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -314,7 +324,7 @@ class OrderView(APIView):
 
         if not user_id or not cart_ids:
             return Response(
-                {"error": "user_id and cart_ids are required parameters"},
+                {"Error": "user_id and cart_ids are required parameters"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -322,39 +332,71 @@ class OrderView(APIView):
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
-                {"error": f"There was an error: {e.message}"},
+                {"Error": f"There was an error: {e.message}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
         try:
-            order = Order.objects.create(user=user)
+            serializer = OrderSerializer(user)
+            if serializer.is_valid():
+                serializer.save()
         except Exception as e:
-            return Response({"Error": f"There was error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"Error": f"There was error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         try:
             for cart_item in cart_ids:
                 cart_id = cart_item.get("cart_id")
                 cart = CartItem.objects.get(cart_id=cart_id)
                 OrderItem.objects.create(
-                    order=order, tire=cart.tire, quantity=cart.quantity
+                    order=serializer, tire=cart.tire, quantity=cart.quantity
                 )
                 cart.delete()
 
             return Response(
-                {"status": "order was successfully created"},
+                {"status": "order was successfully created", "order_id": serializer.data.order_id},
                 status=status.HTTP_201_CREATED,
             )
         except CartItem.DoesNotExist:
             return Response(
-                {"error": "cart wasn't found"},
+                {"Error": "cart wasn't found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception as e:
-            return Response({"error": f"There was error: {e}"})
+            return Response({"Error": f"There was error: {e.message}"})
 
     def delete(self, request: Request):
         pass
+
+
+class OrderItemView(APIView):
+    def get(self, request: Request):
+        user_id = request.data.get("user_id")
+
+        try:
+            user = get_user_by_id(user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {"Error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"Error": f"There was an Error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_Error,
+            )
+
+        try:
+            order = Order.objects.get(user=user)
+            serializer = OrderSerializer(order)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"Error": f"There was an Error: {e.message}"},
+                status=status.HTTP_500_INTERNAL_SERVER_Error,
+            )

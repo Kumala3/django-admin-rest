@@ -20,13 +20,14 @@ class CartItem(models.Model):
     class Meta:
         verbose_name = "Элемент корзины"
         verbose_name_plural = "Элементы корзины"
+        unique_together = ("user", "tire")
         db_table = "basket_items"
 
 
 class Order(models.Model):
     """Заказ"""
 
-    order_id = models.PositiveIntegerField(verbose_name="ID заказа", primary_key=True)
+    order_id = models.BigAutoField(verbose_name="ID заказа", primary_key=True)
     user = models.ForeignKey(
         TelegramUser, on_delete=models.CASCADE, verbose_name="Пользователь"
     )

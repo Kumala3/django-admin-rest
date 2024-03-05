@@ -18,7 +18,7 @@ class TelegramUser(models.Model):
     )
 
     def __str__(self):
-        return f"{self.user.username}-{self.user_id}"
+        return f"{self.username}-{self.user_id}"
 
     class Meta:
         db_table = "users"

@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import TelegramUser, Tire, Height, Width, Diameter
 
+
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ("user_id", "first_name", "last_name", "username", "created_at")

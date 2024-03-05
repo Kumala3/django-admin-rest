@@ -16,7 +16,7 @@ class CartItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "created_at", "is_processed")
+    list_display = ("order_id", "user", "created_at", "is_processed")
     list_filter = ("is_processed", "created_at")
     search_fields = ("user__username", "user__first_name", "user__last_name")
     date_hierarchy = "created_at"
@@ -24,6 +24,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'tire', 'quantity')
-    list_filter = ('order', 'tire')
+    list_display = ("order", "tire", "quantity")
+    list_filter = ("order", "tire")
     search_fields = ('order__id', 'tire__brand')

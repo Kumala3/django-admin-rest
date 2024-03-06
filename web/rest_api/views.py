@@ -1,4 +1,6 @@
 import json
+import logging
+import betterlogging as bl
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,6 +25,15 @@ def get_user_by_id(user_id: int) -> TelegramUser:
     Raises TelegramUser.DoesNotExist if the user is not found.
     """
     return TelegramUser.objects.get(user_id=user_id)
+
+
+log_level = logging.INFO
+bl.basic_colorized_config(level=log_level)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 class UserHandleApiView(APIView):
@@ -365,7 +376,9 @@ class OrderView(APIView):
         try:
             serializer = OrderSerializer(data=user)
             if serializer.is_valid():
-                serializer.save()
+                order = serializer.save()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response(
                 {"Error": f"There was error: {e}"},
@@ -377,14 +390,14 @@ class OrderView(APIView):
                 cart_id = cart_item.get("cart_id")
                 cart = CartItem.objects.get(cart_id=cart_id)
                 OrderItem.objects.create(
-                    order=serializer, tire=cart.tire, quantity=cart.quantity
+                    order=order, tire=cart.tire, quantity=cart.quantity
                 )
                 cart.delete()
 
             return Response(
                 {
                     "status": "order was successfully created",
-                    "order_id": serializer.data.order_id,
+                    "order_id": order.order_id,
                 },
                 status=status.HTTP_201_CREATED,
             )

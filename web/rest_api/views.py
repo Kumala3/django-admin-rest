@@ -45,24 +45,6 @@ class UserHandleApiView(APIView):
     - get: Retrieve user information by user ID.
     """
 
-    def post(self, request: Request):
-        data = {
-            "user_id": request.data.get("user_id"),
-            "first_name": request.data.get("first_name"),
-            "username": request.data.get("username"),
-            "last_name": request.data.get("last_name"),
-            "phone_number": request.data.get("phone_number"),
-        }
-
-        serializer = UserSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
-
-        return Response(
-            {"status": "User wasn't created"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
     def get(self, request: Request):
         user_id = request.data.get("user_id")
 
@@ -90,14 +72,31 @@ class UserHandleApiView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    def post(self, request: Request):
+        data = {
+            "user_id": request.data.get("user_id"),
+            "first_name": request.data.get("first_name"),
+            "username": request.data.get("username"),
+            "last_name": request.data.get("last_name"),
+            "phone_number": request.data.get("phone_number"),
+        }
+
+        serializer = UserSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
+
+        return Response(
+            {"status": "User wasn't created"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 class TireApiView(APIView):
     """
     API view for handling tire operations.
 
     Methods:
-    - post: Create a new user.
-    - get: Retrieve user information by user ID.
+    - get: Retrieve tire information by tire_id.
     """
 
     def get(self, request: Request):
@@ -123,13 +122,33 @@ class TireApiView(APIView):
 
 class CartApiView(APIView):
     """
-    API view for handling cart operations.
+    API view for handling shop cart operations.
 
     Methods:
     - post: Create a new cart element.
     - get: Retrieve cart information by cart ID.
     - delete: Delete a cart by cart ID.
     """
+
+    def get(self, request: Request):
+        cart_id = request.data.get("cart_id")
+
+        if not cart_id:
+            return Response("cart_id is required", status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cart = CartItem.objects.get(cart_id=cart_id)
+            serializer = CartSerializer(cart)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except CartItem.DoesNotExist:
+            return Response(
+                {"Error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"Error": f"There was an error: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def post(self, request: Request):
         user_id = request.data.get("user_id")
@@ -183,26 +202,6 @@ class CartApiView(APIView):
             {"status": "Cart Item wasn't added to the basket"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-    def get(self, request: Request):
-        cart_id = request.data.get("cart_id")
-
-        if not cart_id:
-            return Response("cart_id is required", status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            cart = CartItem.objects.get(cart_id=cart_id)
-            serializer = CartSerializer(cart)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except CartItem.DoesNotExist:
-            return Response(
-                {"Error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return Response(
-                {"Error": f"There was an error: {e}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
     def delete(self, request: Request):
         cart_id = request.data.get("cart_id")
@@ -311,7 +310,7 @@ class OrderView(APIView):
 
     Methods:
     - get: Retrieves the order information for a given user.
-    - post: Create the order for the specified user.
+    - post: Create the order by cart_ids.
     - delete: Delete the order for the specified user.
     """
 
@@ -373,8 +372,12 @@ class OrderView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        data = {
+            "user": user.pk,
+        }
+
         try:
-            serializer = OrderSerializer(data=user)
+            serializer = OrderSerializer(data=data)
             if serializer.is_valid():
                 order = serializer.save()
             else:

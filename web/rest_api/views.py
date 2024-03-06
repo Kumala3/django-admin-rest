@@ -360,6 +360,12 @@ class OrderView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if not json.loads(cart_ids):
+            return Response(
+                {"Error": "Empty list of cart_ids, cannot create an order"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             user = get_user_by_id(user_id)
         except TelegramUser.DoesNotExist:
@@ -372,6 +378,19 @@ class OrderView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        carts_to_order = []
+
+        for cart_item in json.loads(cart_ids):
+            cart_id = cart_item.get("cart_id")
+            try:
+                cart = CartItem.objects.get(cart_id=cart_id)
+                carts_to_order.append(cart)
+            except CartItem.DoesNotExist:
+                return Response(
+                    {"Error": f"Cart with cart_id: {cart_id} not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
         data = {
             "user": user.pk,
         }
@@ -382,18 +401,12 @@ class OrderView(APIView):
                 order = serializer.save()
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response(
-                {"Error": f"There was error: {e}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
-        try:
-            for cart_item in json.loads(cart_ids):
-                cart_id = cart_item.get("cart_id")
-                cart = CartItem.objects.get(cart_id=cart_id)
+            for cart in carts_to_order:
                 OrderItem.objects.create(
-                    order=order, tire=cart.tire, quantity=cart.quantity
+                    order=order,
+                    tire=cart.tire,
+                    quantity=cart.quantity,
                 )
                 cart.delete()
 
@@ -403,11 +416,6 @@ class OrderView(APIView):
                     "order_id": order.order_id,
                 },
                 status=status.HTTP_201_CREATED,
-            )
-        except CartItem.DoesNotExist:
-            return Response(
-                {"Error": "cart not found"},
-                status=status.HTTP_404_NOT_FOUND,
             )
         except Exception as e:
             return Response({"Error": f"There was error: {e}"})

@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from config import load_config
+
+db = load_config().db
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,14 +82,13 @@ WSGI_APPLICATION = "django_config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "aksion_db",
-        "USER": "aksion4232",
-        "PASSWORD": "vrb6u7bkr7t",
-        "HOST": "pg_database",
-        "PORT": 5432,
+        "NAME": db.database,
+        "USER": db.user,
+        "PASSWORD": db.password,
+        "HOST": db.host,
+        "PORT": db.port,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
